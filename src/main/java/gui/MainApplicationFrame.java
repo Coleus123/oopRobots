@@ -89,54 +89,84 @@ public class MainApplicationFrame extends JFrame
 //        menuItem.setAccelerator(KeyStroke.getKeyStroke(
 //                KeyEvent.VK_Q, ActionEvent.ALT_MASK));
 //        menuItem.setActionCommand("quit");
-////        menuItem.addActionListener(this);
+/// /        menuItem.addActionListener(this);
 //        menu.add(menuItem);
 // 
 //        return menuBar;
 //    }
-    
-    private JMenuBar generateMenuBar()
+
+    /**
+     * Создает пункт меню "Системная схема".
+     * Меняет вид интерфейса
+     */
+    private JMenuItem createSystemScheme(){
+        JMenuItem systemLookAndFeel = new JMenuItem("Системная схема", KeyEvent.VK_S);
+        systemLookAndFeel.addActionListener((event) -> {
+            setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+            this.invalidate();
+        });
+        return systemLookAndFeel;
+    }
+
+    /**
+     * Создает пункт меню "Универсальная схема".
+     * Меняет вид интерфейса
+     */
+    private JMenuItem createCrossplatformScheme()
     {
-        JMenuBar menuBar = new JMenuBar();
-        
+        JMenuItem crossplatformLookAndFeel = new JMenuItem("Универсальная схема", KeyEvent.VK_S);
+        crossplatformLookAndFeel.addActionListener((event) -> {
+            setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
+            this.invalidate();
+        });
+        return crossplatformLookAndFeel;
+    }
+    /**
+     * Создает меню "Режим отображения".
+     * Содержит пункты для изменения вида интерфейса
+     */
+    private JMenu generateLookAndFeelMenu(){
         JMenu lookAndFeelMenu = new JMenu("Режим отображения");
         lookAndFeelMenu.setMnemonic(KeyEvent.VK_V);
         lookAndFeelMenu.getAccessibleContext().setAccessibleDescription(
                 "Управление режимом отображения приложения");
-        
-        {
-            JMenuItem systemLookAndFeel = new JMenuItem("Системная схема", KeyEvent.VK_S);
-            systemLookAndFeel.addActionListener((event) -> {
-                setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-                this.invalidate();
-            });
-            lookAndFeelMenu.add(systemLookAndFeel);
-        }
+        lookAndFeelMenu.add(createSystemScheme());
+        lookAndFeelMenu.add(createCrossplatformScheme());
+        return lookAndFeelMenu;
+    }
 
-        {
-            JMenuItem crossplatformLookAndFeel = new JMenuItem("Универсальная схема", KeyEvent.VK_S);
-            crossplatformLookAndFeel.addActionListener((event) -> {
-                setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
-                this.invalidate();
-            });
-            lookAndFeelMenu.add(crossplatformLookAndFeel);
-        }
+    /**
+     *  Создает пункт меню "Сообщение в лог".
+     *  Добавляет сообщение в лог
+     */
+    private JMenuItem addLogTestMenu()
+    {
+        JMenuItem addLogMessageItem = new JMenuItem("Сообщение в лог", KeyEvent.VK_S);
+        addLogMessageItem.addActionListener((event) -> {
+            Logger.debug("Новая строка");
+        });
+        return addLogMessageItem;
+    }
 
+    /**
+     * Создает меню с тестовыми командами
+     */
+    private JMenu generateTestMenu()
+    {
         JMenu testMenu = new JMenu("Тесты");
         testMenu.setMnemonic(KeyEvent.VK_T);
         testMenu.getAccessibleContext().setAccessibleDescription(
                 "Тестовые команды");
-        
-        {
-            JMenuItem addLogMessageItem = new JMenuItem("Сообщение в лог", KeyEvent.VK_S);
-            addLogMessageItem.addActionListener((event) -> {
-                Logger.debug("Новая строка");
-            });
-            testMenu.add(addLogMessageItem);
-        }
+        testMenu.add(addLogTestMenu());
+        return testMenu;
+    }
 
-        menuBar.add(lookAndFeelMenu);
-        menuBar.add(testMenu);
+    private JMenuBar generateMenuBar()
+    {
+        JMenuBar menuBar = new JMenuBar();
+
+        menuBar.add(generateLookAndFeelMenu());
+        menuBar.add(generateTestMenu());
         return menuBar;
     }
     
