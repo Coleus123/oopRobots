@@ -3,16 +3,11 @@ package gui;
 import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 
-import javax.swing.JDesktopPane;
-import javax.swing.JFrame;
-import javax.swing.JInternalFrame;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
-import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
-import javax.swing.UnsupportedLookAndFeelException;
+import javax.swing.*;
 
 import log.Logger;
 
@@ -46,7 +41,21 @@ public class MainApplicationFrame extends JFrame
         addWindow(gameWindow);
 
         setJMenuBar(generateMenuBar());
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                int choice = JOptionPane.showConfirmDialog(
+                        e.getWindow(),
+                        "Вы точно хотите выйти?",
+                        "Подтверждение выхода",
+                        JOptionPane.YES_NO_OPTION
+                );
+                if(choice == JOptionPane.YES_OPTION){
+                    setDefaultCloseOperation(EXIT_ON_CLOSE);
+                }
+            }
+        });
+        setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
     }
     
     protected LogWindow createLogWindow()
@@ -94,6 +103,32 @@ public class MainApplicationFrame extends JFrame
 // 
 //        return menuBar;
 //    }
+
+
+
+    /**
+     * Создает пункт меню "Выход" для выхода из приложения
+     */
+    private JMenuItem createExit(){
+        JMenuItem exitItem = new JMenuItem("Выход", KeyEvent.VK_X | KeyEvent.VK_ALT);
+        exitItem.addActionListener((event) -> {
+            Toolkit.getDefaultToolkit().getSystemEventQueue().postEvent(
+                    new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
+        });
+        return exitItem;
+    }
+    /**
+     * Создает меню "Выход"
+     * Меню позволяющее закрыть приложение
+     */
+    private JMenu generateExitMenu(){
+        JMenu exitMenu = new JMenu("Выход");
+        exitMenu.setMnemonic(KeyEvent.VK_E);
+        exitMenu.getAccessibleContext().setAccessibleDescription(
+                "Позволяет выйти из приложения");
+        exitMenu.add(createExit());
+        return exitMenu;
+    }
 
     /**
      * Создает пункт меню "Системная схема".
@@ -165,6 +200,7 @@ public class MainApplicationFrame extends JFrame
     {
         JMenuBar menuBar = new JMenuBar();
 
+        menuBar.add(generateExitMenu());
         menuBar.add(generateLookAndFeelMenu());
         menuBar.add(generateTestMenu());
         return menuBar;
