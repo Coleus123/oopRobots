@@ -24,7 +24,7 @@ public class LogWindow extends JInternalFrame implements LogChangeListener, Stat
     private static final Integer Y = 10;
     private static final Integer WIDTH = 300;
     private static final Integer HEIGHT = 800;
-    private static final Integer ISCON = 1;
+
 
     public LogWindow()
     {

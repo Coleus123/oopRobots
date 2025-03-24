@@ -39,7 +39,7 @@ public class StateManager {
     public void saveConfig(String fileName)  {
         File configFile = new File(fileName);
         File parentDir = configFile.getParentFile();
-        if (parentDir != null && !parentDir.exists()) {
+        if (!parentDir.exists()) {
             parentDir.mkdirs();
         }
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(configFile))) {
@@ -59,13 +59,10 @@ public class StateManager {
         File configFile = new File(fileName);
         if (configFile.exists()) {
             try (BufferedReader reader = new BufferedReader(new FileReader(configFile))) {
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    String[] parts = line.split("=", 2);
-                    if (parts.length == 2) {
-                        globalState.put(parts[0], parts[1]);
-                    }
-                }
+                reader.lines()
+                        .map(line -> line.split("=", 2))
+                        .filter(parts -> parts.length == 2)
+                        .forEach(parts -> globalState.put(parts[0], parts[1]));
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
