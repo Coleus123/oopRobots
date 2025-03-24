@@ -1,15 +1,18 @@
 package gui;
 
-import java.awt.Dimension;
-import java.awt.Toolkit;
+import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.swing.*;
 
 import log.Logger;
+import windowsState.StateManager;
+import windowsState.Stateful;
 
 /**
  * Что требуется сделать:
@@ -17,28 +20,29 @@ import log.Logger;
  * Следует разделить его на серию более простых методов (или вообще выделить отдельный класс).
  *
  */
-public class MainApplicationFrame extends JFrame
+public class MainApplicationFrame extends JFrame implements Stateful
 {
     private final JDesktopPane desktopPane = new JDesktopPane();
-    
+    private StateManager stateManager;
+    private final String filePath =
+            System.getProperty("user.home") + "/Ogorodnikov/config.cfg";
+
     public MainApplicationFrame() {
-        //Make the big window be indented 50 pixels from each edge
-        //of the screen.
-        int inset = 50;        
-        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        setBounds(inset, inset,
-            screenSize.width  - inset*2,
-            screenSize.height - inset*2);
+        stateManager = new StateManager();
 
         setContentPane(desktopPane);
-        
-        
-        LogWindow logWindow = createLogWindow();
+
+
+        LogWindow logWindow = new LogWindow();
         addWindow(logWindow);
 
         GameWindow gameWindow = new GameWindow();
-        gameWindow.setSize(400,  400);
         addWindow(gameWindow);
+
+        JInternalFrame[] windows = desktopPane.getAllFrames();
+        System.out.println(windows.length);
+
+        restoreAllWindowsState(windows, filePath);
 
         setJMenuBar(generateMenuBar());
         addWindowListener(new WindowAdapter() {
@@ -51,22 +55,78 @@ public class MainApplicationFrame extends JFrame
                         JOptionPane.YES_NO_OPTION
                 );
                 if(choice == JOptionPane.YES_OPTION){
-                    setDefaultCloseOperation(EXIT_ON_CLOSE);
+                    saveAllWindowsState(windows, filePath);
+                    dispose();
+                    System.exit(0);
                 }
             }
         });
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
     }
-    
-    protected LogWindow createLogWindow()
-    {
-        LogWindow logWindow = new LogWindow(Logger.getDefaultLogSource());
-        logWindow.setLocation(10,10);
-        logWindow.setSize(300, 800);
-        setMinimumSize(logWindow.getSize());
-        logWindow.pack();
-        Logger.debug("Протокол работает");
-        return logWindow;
+
+    @Override
+    public String getName(){
+        return "Main";
+    }
+
+    @Override
+    public Map<String, String> saveState() {
+        Map<String, String> state = new HashMap<>();
+        state.put("x", Integer.toString(getX()));
+        state.put("y", Integer.toString(getY()));
+        state.put("width", Integer.toString(getWidth()));
+        state.put("height", Integer.toString(getHeight()));
+        return state;
+    }
+
+    @Override
+    public void restoreState(Map<String, String> state) {
+        if (state.isEmpty()){
+            //Make the big window be indented 50 pixels from each edge
+            //of the screen.
+            int inset = 50;
+            Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+            setBounds(inset, inset,
+                    screenSize.width  - inset*2,
+                    screenSize.height - inset*2);
+            return;
+        }
+        int x = Integer.parseInt(state.get("x"));
+        int y = Integer.parseInt(state.get("y"));
+        int width = Integer.parseInt(state.get("width"));
+        int height = Integer.parseInt(state.get("height"));
+
+        setBounds(x, y, width, height);
+    }
+
+    /**
+     * Сохраняет размеры и положение всех окон реализующих интерфейс Stateful
+     */
+    public void saveAllWindowsState(JInternalFrame[] windows, String filePath){
+        stateManager.saveComponentState(getName(), saveState());
+        for (JInternalFrame window : windows) {
+            if (window instanceof Stateful) {
+                stateManager
+                        .saveComponentState(window.getName(),
+                                ((Stateful) window).saveState());
+            }
+        }
+        stateManager.saveConfig(filePath);
+    }
+
+    /**
+     * Восстанавливает размеры и положение всех окон
+     *  реализующих интерфейс Stateful
+     */
+    private void restoreAllWindowsState(JInternalFrame[] windows, String filePath) {
+        stateManager.loadConfig(filePath);
+        for (JInternalFrame window : windows) {
+            if (window instanceof Stateful) {
+                ((Stateful) window).restoreState(stateManager
+                        .restoreComponentState(window.getName()));
+            }
+        }
+        restoreState(stateManager.restoreComponentState(getName()));
     }
     
     protected void addWindow(JInternalFrame frame)
