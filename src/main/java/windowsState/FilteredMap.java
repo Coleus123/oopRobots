@@ -1,6 +1,7 @@
 package windowsState;
 
 import java.util.AbstractMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -48,13 +49,14 @@ public class FilteredMap extends AbstractMap<String, String> {
      */
     @Override
     public Set<Entry<String, String>> entrySet() {
-        return originalMap.entrySet()
-                .stream()
-                .filter(entry -> entry.getKey().startsWith(prefix))
-                .map(entry -> new SimpleEntry<>(
+        Set<Entry<String,String>> result = new HashSet<>();
+        for(Entry<String, String> entry : originalMap.entrySet()){
+            if(entry.getKey().startsWith(prefix)) {
+                result.add(new SimpleEntry<>(
                         entry.getKey().substring(prefix.length()),
-                        entry.getValue()
-                ))
-                .collect(Collectors.toSet());
+                        entry.getValue()));
+            }
+        }
+        return result;
     }
 }

@@ -40,7 +40,6 @@ public class MainApplicationFrame extends JFrame implements Stateful
         addWindow(gameWindow);
 
         JInternalFrame[] windows = desktopPane.getAllFrames();
-        System.out.println(windows.length);
 
         restoreAllWindowsState(windows, filePath);
 
