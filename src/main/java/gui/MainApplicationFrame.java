@@ -33,13 +33,14 @@ public class MainApplicationFrame extends JFrame implements Stateful
 
         setContentPane(desktopPane);
 
-
         LogWindow logWindow = new LogWindow();
         addWindow(logWindow);
 
         GameWindow gameWindow = new GameWindow();
         addWindow(gameWindow);
 
+        RobotCoordinates robotCoordinates = new RobotCoordinates(gameWindow.getGameModel());
+        addWindow(robotCoordinates);
         JInternalFrame[] windows = desktopPane.getAllFrames();
 
         restoreAllWindowsState(windows);
@@ -77,8 +78,6 @@ public class MainApplicationFrame extends JFrame implements Stateful
     @Override
     public void restoreState(Map<String, String> state) {
         if (state.isEmpty()){
-            //Make the big window be indented 50 pixels from each edge
-            //of the screen.
             int inset = 50;
             Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
             setBounds(inset, inset,

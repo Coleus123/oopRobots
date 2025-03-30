@@ -4,27 +4,39 @@ import windowsState.ComponentState;
 import windowsState.Stateful;
 
 import java.awt.BorderLayout;
-import java.beans.PropertyVetoException;
-import java.util.HashMap;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.Map;
 
 import javax.swing.JInternalFrame;
 import javax.swing.JPanel;
+
+import static com.sun.java.accessibility.util.AWTEventMonitor.addMouseListener;
 
 public class GameWindow extends JInternalFrame implements Stateful
 {
     private final static Integer HEIGHT = 300;
     private static final Integer WIDTH = 500;
     private final GameVisualizer m_visualizer;
+    private final GameModel gameModel;
     public GameWindow()
     {
         super("Игровое поле", true, true, true, true);
-        m_visualizer = new GameVisualizer();
+        gameModel = new GameModel();
+        m_visualizer = new GameVisualizer(gameModel);
+        gameModel.addPropertyChangeListener(m_visualizer);
         JPanel panel = new JPanel(new BorderLayout());
         panel.add(m_visualizer, BorderLayout.CENTER);
         getContentPane().add(panel);
         pack();
         setSize(400,  400);
+    }
+
+    /**
+     * Вернуть модель робота
+     */
+    protected GameModel getGameModel(){
+        return gameModel;
     }
 
     @Override
