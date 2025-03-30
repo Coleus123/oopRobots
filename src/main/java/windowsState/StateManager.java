@@ -11,12 +11,20 @@ import java.util.Map;
 public class StateManager {
     private final Map<String, String> globalState;
     private final FilteredMap filteredMap;
+    private final String filePath;
 
     public StateManager(){
         globalState = new HashMap<>();
         filteredMap = new FilteredMap(globalState, "");
+        filePath = System.getProperty("user.home") + File.separator + "Ogorodnikov" +
+                File.separator + "config.cfg";
     }
 
+    public StateManager(String filePath){
+        globalState = new HashMap<>();
+        filteredMap = new FilteredMap(globalState, "");
+        this.filePath = filePath;
+    }
     /**
      * Сохраняет состояние компонента в общий словарь
      */
@@ -36,8 +44,8 @@ public class StateManager {
     /**
      * Сохраняет состояния компонент в файл
      */
-    public void saveConfig(String fileName)  {
-        File configFile = new File(fileName);
+    public void saveConfig()  {
+        File configFile = new File(filePath);
         File parentDir = configFile.getParentFile();
         if (!parentDir.exists()) {
             parentDir.mkdirs();
@@ -55,8 +63,8 @@ public class StateManager {
     /**
      * Загружает состояния компонент из файла
      */
-    public void loadConfig(String fileName) {
-        File configFile = new File(fileName);
+    public void loadConfig() {
+        File configFile = new File(filePath);
         if (configFile.exists()) {
             try (BufferedReader reader = new BufferedReader(new FileReader(configFile))) {
                 reader.lines()

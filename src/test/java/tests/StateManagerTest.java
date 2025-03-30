@@ -25,7 +25,8 @@ class StateManagerTest {
 
     @BeforeEach
     public void setUp(){
-        stateManager = new StateManager();
+        File configFile = new File(tempDir, "config.txt");
+        stateManager = new StateManager(configFile.toString());
     }
 
     /**
@@ -57,10 +58,9 @@ class StateManagerTest {
         component1State.put("key1", "value1");
         component1State.put("key2", "value2");
         stateManager.saveComponentState("component1", component1State);
-        File configFile = new File(tempDir, "config.txt");
-        stateManager.saveConfig(configFile.getAbsolutePath());
+        stateManager.saveConfig();
         StateManager loadedStateManager = new StateManager();
-        loadedStateManager.loadConfig(configFile.getAbsolutePath());
+        loadedStateManager.loadConfig();
         Map<String, String> restoredComponent1State =
                 loadedStateManager
                         .restoreComponentState("component1");

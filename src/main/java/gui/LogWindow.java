@@ -14,6 +14,7 @@ import log.LogChangeListener;
 import log.LogEntry;
 import log.LogWindowSource;
 import log.Logger;
+import windowsState.ComponentState;
 import windowsState.Stateful;
 
 public class LogWindow extends JInternalFrame implements LogChangeListener, Stateful
@@ -61,13 +62,7 @@ public class LogWindow extends JInternalFrame implements LogChangeListener, Stat
 
     @Override
     public Map<String, String> saveState() {
-        Map<String, String> state = new HashMap<>();
-        state.put("x", Integer.toString(getX()));
-        state.put("y", Integer.toString(getY()));
-        state.put("width", Integer.toString(getWidth()));
-        state.put("height", Integer.toString(getHeight()));
-        state.put("isIcon", Boolean.toString(isIcon()));
-        return state;
+        return new ComponentState().save(this);
     }
 
     @Override
@@ -76,20 +71,7 @@ public class LogWindow extends JInternalFrame implements LogChangeListener, Stat
             setBounds(X, Y, WIDTH, HEIGHT);
             return;
         }
-        int x = Integer.parseInt(state.get("x"));
-        int y = Integer.parseInt(state.get("y"));
-        int width = Integer.parseInt(state.get("width"));
-        int height = Integer.parseInt(state.get("height"));
-        boolean isIcon = Boolean.parseBoolean(state.get("isIcon"));
-
-        setBounds(x, y, width, height);
-        if (isIcon) {
-            try {
-                setIcon(true);
-            } catch (PropertyVetoException e) {
-                e.printStackTrace();
-            }
-        }
+        new ComponentState().restore(this, state);
     }
 
     @Override

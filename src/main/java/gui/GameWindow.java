@@ -1,5 +1,6 @@
 package gui;
 
+import windowsState.ComponentState;
 import windowsState.Stateful;
 
 import java.awt.BorderLayout;
@@ -28,13 +29,7 @@ public class GameWindow extends JInternalFrame implements Stateful
 
     @Override
     public Map<String, String> saveState() {
-        Map<String, String> state = new HashMap<>();
-        state.put("x", Integer.toString(getX()));
-        state.put("y", Integer.toString(getY()));
-        state.put("width", Integer.toString(getWidth()));
-        state.put("height", Integer.toString(getHeight()));
-        state.put("isIcon", Boolean.toString(isIcon()));
-        return state;
+        return new ComponentState().save(this);
     }
 
     @Override
@@ -43,20 +38,7 @@ public class GameWindow extends JInternalFrame implements Stateful
             setSize(WIDTH, HEIGHT);
             return;
         }
-        int x = Integer.parseInt(state.get("x"));
-        int y = Integer.parseInt(state.get("y"));
-        int width = Integer.parseInt(state.get("width"));
-        int height = Integer.parseInt(state.get("height"));
-        boolean isIcon = Boolean.parseBoolean(state.get("isIcon"));
-
-        setBounds(x, y, width, height);
-        if (isIcon) {
-            try {
-                setIcon(true);
-            } catch (PropertyVetoException e) {
-                e.printStackTrace();
-            }
-        }
+        new ComponentState().restore(this, state);
     }
 
     @Override

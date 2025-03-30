@@ -5,12 +5,14 @@ import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.swing.*;
 
 import log.Logger;
+import windowsState.ComponentState;
 import windowsState.StateManager;
 import windowsState.Stateful;
 
@@ -24,8 +26,7 @@ public class MainApplicationFrame extends JFrame implements Stateful
 {
     private final JDesktopPane desktopPane = new JDesktopPane();
     private StateManager stateManager;
-    private final String filePath =
-            System.getProperty("user.home") + "/Ogorodnikov/config.cfg";
+
 
     public MainApplicationFrame() {
         stateManager = new StateManager();
@@ -41,7 +42,7 @@ public class MainApplicationFrame extends JFrame implements Stateful
 
         JInternalFrame[] windows = desktopPane.getAllFrames();
 
-        restoreAllWindowsState(windows, filePath);
+        restoreAllWindowsState(windows);
 
         setJMenuBar(generateMenuBar());
         addWindowListener(new WindowAdapter() {
@@ -54,7 +55,7 @@ public class MainApplicationFrame extends JFrame implements Stateful
                         JOptionPane.YES_NO_OPTION
                 );
                 if(choice == JOptionPane.YES_OPTION){
-                    saveAllWindowsState(windows, filePath);
+                    saveAllWindowsState(windows);
                     dispose();
                     System.exit(0);
                 }
@@ -70,12 +71,7 @@ public class MainApplicationFrame extends JFrame implements Stateful
 
     @Override
     public Map<String, String> saveState() {
-        Map<String, String> state = new HashMap<>();
-        state.put("x", Integer.toString(getX()));
-        state.put("y", Integer.toString(getY()));
-        state.put("width", Integer.toString(getWidth()));
-        state.put("height", Integer.toString(getHeight()));
-        return state;
+        return new ComponentState().save(this);
     }
 
     @Override
@@ -90,18 +86,13 @@ public class MainApplicationFrame extends JFrame implements Stateful
                     screenSize.height - inset*2);
             return;
         }
-        int x = Integer.parseInt(state.get("x"));
-        int y = Integer.parseInt(state.get("y"));
-        int width = Integer.parseInt(state.get("width"));
-        int height = Integer.parseInt(state.get("height"));
-
-        setBounds(x, y, width, height);
+        new ComponentState().restore(this, state);
     }
 
     /**
      * Сохраняет размеры и положение всех окон реализующих интерфейс Stateful
      */
-    public void saveAllWindowsState(JInternalFrame[] windows, String filePath){
+    public void saveAllWindowsState(JInternalFrame[] windows){
         stateManager.saveComponentState(getName(), saveState());
         for (JInternalFrame window : windows) {
             if (window instanceof Stateful) {
@@ -110,15 +101,15 @@ public class MainApplicationFrame extends JFrame implements Stateful
                                 ((Stateful) window).saveState());
             }
         }
-        stateManager.saveConfig(filePath);
+        stateManager.saveConfig();
     }
 
     /**
      * Восстанавливает размеры и положение всех окон
      *  реализующих интерфейс Stateful
      */
-    private void restoreAllWindowsState(JInternalFrame[] windows, String filePath) {
-        stateManager.loadConfig(filePath);
+    private void restoreAllWindowsState(JInternalFrame[] windows) {
+        stateManager.loadConfig();
         for (JInternalFrame window : windows) {
             if (window instanceof Stateful) {
                 ((Stateful) window).restoreState(stateManager
