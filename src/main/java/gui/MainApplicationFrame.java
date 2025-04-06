@@ -26,20 +26,23 @@ public class MainApplicationFrame extends JFrame implements Stateful
 {
     private final JDesktopPane desktopPane = new JDesktopPane();
     private StateManager stateManager;
+    private GameModel gameModel;
 
 
     public MainApplicationFrame() {
         stateManager = new StateManager();
+        gameModel = new GameModel();
+
 
         setContentPane(desktopPane);
 
         LogWindow logWindow = new LogWindow();
         addWindow(logWindow);
 
-        GameWindow gameWindow = new GameWindow();
+        GameWindow gameWindow = new GameWindow(gameModel);
         addWindow(gameWindow);
 
-        RobotCoordinates robotCoordinates = new RobotCoordinates(gameWindow.getGameModel());
+        RobotCoordinates robotCoordinates = new RobotCoordinates(gameModel);
         addWindow(robotCoordinates);
         JInternalFrame[] windows = desktopPane.getAllFrames();
 

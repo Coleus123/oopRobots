@@ -17,26 +17,18 @@ public class GameWindow extends JInternalFrame implements Stateful
 {
     private final static Integer HEIGHT = 300;
     private static final Integer WIDTH = 500;
-    private final GameVisualizer m_visualizer;
-    private final GameModel gameModel;
-    public GameWindow()
+    private GameVisualizer m_visualizer;
+    private GameController gameController;
+    public GameWindow(GameModel gameModel)
     {
         super("Игровое поле", true, true, true, true);
-        gameModel = new GameModel();
-        m_visualizer = new GameVisualizer(gameModel);
-        gameModel.addPropertyChangeListener(m_visualizer);
+        gameController = new GameController(gameModel);
+        m_visualizer = new GameVisualizer(gameModel, gameController);
         JPanel panel = new JPanel(new BorderLayout());
         panel.add(m_visualizer, BorderLayout.CENTER);
         getContentPane().add(panel);
         pack();
         setSize(400,  400);
-    }
-
-    /**
-     * Вернуть модель робота
-     */
-    protected GameModel getGameModel(){
-        return gameModel;
     }
 
     @Override

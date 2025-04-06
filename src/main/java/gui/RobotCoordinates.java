@@ -9,19 +9,22 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.Map;
 
+import static javax.management.Query.match;
+
 public class RobotCoordinates extends JInternalFrame implements PropertyChangeListener, Stateful {
-    private double x = 100;
-    private double y = 100;
+    private Double x;
+    private Double y;
+    private GameModel gameModel;
     private JLabel coordinatesLabel;
 
-    public RobotCoordinates(GameModel robotModel) {
+    public RobotCoordinates(GameModel gameModel) {
         super("Координаты робота", true, true, true, true);
-
-        robotModel.addPropertyChangeListener(this);
+        this.gameModel = gameModel;
+        gameModel.addPropertyChangeListener(this);
 
         coordinatesLabel = new JLabel("", JLabel.CENTER);
         coordinatesLabel.setFont(new Font("Arial", Font.BOLD, 16));
-        updateCoordinates();
+        updateCoordinates(gameModel.getX(), gameModel.getY());
 
         JPanel panel = new JPanel(new BorderLayout());
         panel.add(coordinatesLabel, BorderLayout.CENTER);
@@ -40,12 +43,12 @@ public class RobotCoordinates extends JInternalFrame implements PropertyChangeLi
                 this.y = (Double)evt.getNewValue();
                 break;
         }
-        updateCoordinates();
+        updateCoordinates(x, y);
     }
 
-    private void updateCoordinates() {
+    private void updateCoordinates(Double coordinateX, Double coordinateY) {
         String text = String.format("X: %.2f, Y: %.2f",
-                x, y);
+                coordinateX, coordinateY);
         coordinatesLabel.setText(text);
     }
 
