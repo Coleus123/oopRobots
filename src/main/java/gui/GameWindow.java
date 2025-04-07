@@ -1,17 +1,16 @@
 package gui;
 
+import game.GameController;
+import game.GameModel;
+import game.GameVisualizer;
 import windowsState.ComponentState;
 import windowsState.Stateful;
 
 import java.awt.BorderLayout;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.util.Map;
 
 import javax.swing.JInternalFrame;
 import javax.swing.JPanel;
-
-import static com.sun.java.accessibility.util.AWTEventMonitor.addMouseListener;
 
 public class GameWindow extends JInternalFrame implements Stateful
 {
@@ -47,6 +46,6 @@ public class GameWindow extends JInternalFrame implements Stateful
 
     @Override
     public String getName(){
-        return "Game";
+        return "game";
     }
 }

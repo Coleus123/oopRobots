@@ -4,13 +4,11 @@ import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
-import java.io.File;
-import java.util.HashMap;
 import java.util.Map;
 
 import javax.swing.*;
 
+import game.GameModel;
 import log.Logger;
 import windowsState.ComponentState;
 import windowsState.StateManager;

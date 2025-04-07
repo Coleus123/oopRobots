@@ -1,5 +1,6 @@
 package gui;
 
+import game.GameModel;
 import windowsState.ComponentState;
 import windowsState.Stateful;
 
@@ -8,8 +9,6 @@ import java.awt.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.Map;
-
-import static javax.management.Query.match;
 
 public class RobotCoordinates extends JInternalFrame implements PropertyChangeListener, Stateful {
     private Double x;
@@ -23,7 +22,6 @@ public class RobotCoordinates extends JInternalFrame implements PropertyChangeLi
         gameModel.addPropertyChangeListener(this);
 
         coordinatesLabel = new JLabel("", JLabel.CENTER);
-        coordinatesLabel.setFont(new Font("Arial", Font.BOLD, 16));
         updateCoordinates(gameModel.getX(), gameModel.getY());
 
         JPanel panel = new JPanel(new BorderLayout());

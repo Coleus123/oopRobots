@@ -1,4 +1,4 @@
-package gui;
+package game;
 
 import java.awt.*;
 import java.util.Timer;
@@ -18,7 +18,7 @@ public class GameController {
         timer.schedule(new TimerTask() {
             @Override
             public void run() {
-                model.onModelUpdateEvent();
+                EventQueue.invokeLater(model::onModelUpdateEvent);
             }
         }, 0, 10);
     }

@@ -1,22 +1,16 @@
-package gui;
+package game;
 
-import javax.swing.*;
 import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.geom.Point2D;
 import java.beans.PropertyChangeListener;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.beans.PropertyChangeSupport;
-import java.util.Timer;
 
-import static com.sun.java.accessibility.util.AWTEventMonitor.addMouseListener;
-import static java.lang.Math.abs;
+import static java.lang.Math.*;
 
 public class GameModel {
     private final PropertyChangeSupport propertyChangeSupport =
             new PropertyChangeSupport(this);
+
+    public final static Double MAX_DISTANCE = 0.5;
     private volatile double m_robotPositionX = 100;
     private volatile double m_robotPositionY = 100;
     private volatile double m_robotDirection = 0;
@@ -26,7 +20,7 @@ public class GameModel {
 
     private static final double maxVelocity = 0.1;
     private static final double maxAngularVelocity = 0.001;
-    //private final double radius = maxVelocity / maxAngularVelocity + 1;
+    private final double radius = maxVelocity / maxAngularVelocity;
 
     public GameModel() {}
 
@@ -74,6 +68,7 @@ public class GameModel {
         m_targetPositionX = p.x;
         propertyChangeSupport.firePropertyChange("targetPositionY", m_targetPositionY, p.y);
         m_targetPositionY = p.y;
+        //propertyChangeSupport.firePropertyChange(TARGET_COORDS_CHANGE,);
     }
 
     private static double distance(double x1, double y1, double x2, double y2)
@@ -104,50 +99,56 @@ public class GameModel {
         return angle;
     }
 
+    /**
+     *  Определяет направление робота
+     */
+    private double determineDirection(double angleDiff){
+        if (angleDiff > PI || (angleDiff < 0 && angleDiff > -PI)) {
+            return -maxAngularVelocity; // Поворот по часовой стрелке
+        }
+        else {
+            return maxAngularVelocity;
+        }
+
+    }
+    /**
+     * Проверяет находится ли точка внутри окружностей,
+     * центры которых лежат на прямой перпендикулярной направлению робота
+     */
+    private boolean checkTargetInsideCircle(){
+        double angle = asNormalizedRadians(m_robotDirection + PI / 2);
+        double leftCircleX = m_robotPositionX + radius * cos(angle);
+        double leftCircleY = m_robotPositionY + radius * sin(angle);
+        angle = asNormalizedRadians(m_robotDirection - PI / 2);
+        double rightCircleX = m_robotPositionX + radius * cos(angle);
+        double rightCircleY = m_robotPositionY + radius * sin(angle);
+
+        boolean isInCircleLeft = (Math.pow(m_targetPositionX - leftCircleX, 2) +
+                Math.pow(m_targetPositionY - leftCircleY, 2)) <= radius * radius;
+
+        boolean isInCircleRight = (Math.pow(m_targetPositionX - rightCircleX, 2) +
+                Math.pow(m_targetPositionY - rightCircleY, 2)) <= radius * radius;
+        return isInCircleRight || isInCircleLeft;
+    }
+
     protected void onModelUpdateEvent()
     {
         double distance = distance(m_targetPositionX, m_targetPositionY,
                 m_robotPositionX, m_robotPositionY);
-        if (distance < 0.5)
+        if (distance < MAX_DISTANCE)
         {
             return;
         }
-        double velocity = maxVelocity;
+        if(checkTargetInsideCircle()){
+            moveRobot(maxVelocity, 0, 10);
+            return;
+        }
+
         double angleToTarget = angleTo(m_robotPositionX, m_robotPositionY, m_targetPositionX, m_targetPositionY);
         double angleDiff = asNormalizedRadians(angleToTarget - m_robotDirection);
-//
-//        double leftOffsetX = -distance * Math.sin(m_robotDirection) + m_robotPositionX;
-//        double leftOffsetY = distance * Math.cos(m_robotDirection) + m_robotPositionY;
-//        double rightOffsetX = distance * Math.sin(m_robotDirection) + m_robotPositionX;
-//        double rightOffsetY = -distance * Math.cos(m_robotDirection) + m_robotPositionY;
-//        if (((Math.pow(leftOffsetY - m_robotPositionY, 2)
-//                + Math.pow(leftOffsetX - m_robotPositionX,2) < radius * radius ||
-//                Math.pow(rightOffsetY - m_robotPositionY, 2)
-//                        + Math.pow(rightOffsetX - m_robotPositionX,2) < radius * radius))){
-//            System.out.println("укц");
-//            moveRobot(velocity, 0, 10);
-//            return;
-//            if (angleDiff > 2 * Math.PI){
-//                angleDiff -= 2 * Math.PI;
-//            }
-//            if((distance / abs(angleDiff) > distance / maxAngularVelocity)){
-//
-//            }
-//        }
 
-
-        // Определяем направление поворота (кратчайший путь)
-        double angularVelocity;
-        if (angleDiff > Math.PI) {
-            angularVelocity = -maxAngularVelocity; // Поворот по часовой стрелке
-        } else if (angleDiff > 0) {
-            angularVelocity = maxAngularVelocity; // Поворот против часовой стрелки
-        } else if (angleDiff < -Math.PI) {
-            angularVelocity = maxAngularVelocity; // Поворот против часовой стрелки
-        } else {
-            angularVelocity = -maxAngularVelocity; // Поворот по часовой стрелке
-        }
-        moveRobot(velocity, angularVelocity, 10);
+        double angularVelocity = determineDirection(angleDiff);
+        moveRobot(maxVelocity, angularVelocity, 10);
     }
 
     private static double applyLimits(double value, double min, double max)
@@ -164,8 +165,8 @@ public class GameModel {
         velocity = applyLimits(velocity, 0, maxVelocity);
         angularVelocity = applyLimits(angularVelocity, -maxAngularVelocity, maxAngularVelocity);
         double newX = m_robotPositionX + velocity / angularVelocity *
-                (Math.sin(m_robotDirection  + angularVelocity * duration) -
-                        Math.sin(m_robotDirection));
+                (sin(m_robotDirection  + angularVelocity * duration) -
+                        sin(m_robotDirection));
         if (!Double.isFinite(newX))
         {
             newX = m_robotPositionX + velocity * duration * Math.cos(m_robotDirection);
@@ -175,7 +176,7 @@ public class GameModel {
                         Math.cos(m_robotDirection));
         if (!Double.isFinite(newY))
         {
-            newY = m_robotPositionY + velocity * duration * Math.sin(m_robotDirection);
+            newY = m_robotPositionY + velocity * duration * sin(m_robotDirection);
         }
         propertyChangeSupport.firePropertyChange("robotPositionX",
                 m_robotPositionX, newX);
