@@ -15,10 +15,12 @@ public class GameController {
     }
 
     private void startModelUpdates() {
-        timer.schedule(new TimerTask() {
+        timer.schedule(new TimerTask()
+        {
             @Override
-            public void run() {
-                EventQueue.invokeLater(model::onModelUpdateEvent);
+            public void run()
+            {
+                model.onModelUpdateEvent();
             }
         }, 0, 10);
     }
