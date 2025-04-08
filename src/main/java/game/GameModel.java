@@ -103,8 +103,8 @@ public class GameModel {
      *  Определяет направление робота
      */
     private double determineDirection(double angleDiff){
-        if (angleDiff > PI || (angleDiff < 0 && angleDiff > -PI)) {
-            return -maxAngularVelocity; // Поворот по часовой стрелке
+        if (angleDiff > PI) {
+            return -maxAngularVelocity;
         }
         else {
             return maxAngularVelocity;
@@ -123,11 +123,11 @@ public class GameModel {
         double rightCircleX = m_robotPositionX + radius * cos(angle);
         double rightCircleY = m_robotPositionY + radius * sin(angle);
 
-        boolean isInCircleLeft = (Math.pow(m_targetPositionX - leftCircleX, 2) +
-                Math.pow(m_targetPositionY - leftCircleY, 2)) <= radius * radius;
+        boolean isInCircleLeft = (pow(m_targetPositionX - leftCircleX, 2) +
+                pow(m_targetPositionY - leftCircleY, 2)) <= radius * radius;
 
-        boolean isInCircleRight = (Math.pow(m_targetPositionX - rightCircleX, 2) +
-                Math.pow(m_targetPositionY - rightCircleY, 2)) <= radius * radius;
+        boolean isInCircleRight = (pow(m_targetPositionX - rightCircleX, 2) +
+                pow(m_targetPositionY - rightCircleY, 2)) <= radius * radius;
         return isInCircleRight || isInCircleLeft;
     }
 
