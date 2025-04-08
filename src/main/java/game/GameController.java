@@ -4,6 +4,9 @@ import java.awt.*;
 import java.util.Timer;
 import java.util.TimerTask;
 
+/**
+ * Контроллер модели робота
+ */
 public class GameController {
     private final GameModel model;
     private final Timer timer;

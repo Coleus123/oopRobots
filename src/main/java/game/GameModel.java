@@ -6,6 +6,9 @@ import java.beans.PropertyChangeSupport;
 
 import static java.lang.Math.*;
 
+/**
+ * Содержит данные о роботе и цели куда нужно приехать, а также основную логику работы
+ */
 public class GameModel {
     private final PropertyChangeSupport propertyChangeSupport =
             new PropertyChangeSupport(this);
