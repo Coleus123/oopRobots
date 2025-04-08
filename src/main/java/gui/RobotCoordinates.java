@@ -14,13 +14,13 @@ import java.util.Objects;
 public class RobotCoordinates extends JInternalFrame implements PropertyChangeListener, Stateful {
     private GameModel gameModel;
     private JLabel coordinatesLabel;
-    private JPanel panel = new JPanel(new BorderLayout());
+
 
     public RobotCoordinates(GameModel gameModel) {
         super("Координаты робота", true, true, true, true);
         this.gameModel = gameModel;
         gameModel.addPropertyChangeListener(this);
-
+        JPanel panel = new JPanel(new BorderLayout());
         coordinatesLabel = new JLabel("", JLabel.CENTER);
         updateCoordinates(gameModel.getX(), gameModel.getY());
 
