@@ -10,6 +10,8 @@ public class GameModel {
     private final PropertyChangeSupport propertyChangeSupport =
             new PropertyChangeSupport(this);
 
+    public final static String ROBOT_MOVE = "RobotMoved";
+    public final static String TARGET_CHANGE = "TargetChanged";
     public final static Double MAX_DISTANCE = 0.5;
     private volatile double m_robotPositionX = 100;
     private volatile double m_robotPositionY = 100;
@@ -64,11 +66,9 @@ public class GameModel {
     }
     protected void setTargetPosition(Point p)
     {
-        propertyChangeSupport.firePropertyChange("targetPositionX", m_targetPositionX, p.x);
         m_targetPositionX = p.x;
-        propertyChangeSupport.firePropertyChange("targetPositionY", m_targetPositionY, p.y);
         m_targetPositionY = p.y;
-        //propertyChangeSupport.firePropertyChange(TARGET_COORDS_CHANGE,);
+        propertyChangeSupport.firePropertyChange(TARGET_CHANGE, null, null);
     }
 
     private static double distance(double x1, double y1, double x2, double y2)
@@ -178,15 +178,10 @@ public class GameModel {
         {
             newY = m_robotPositionY + velocity * duration * sin(m_robotDirection);
         }
-        propertyChangeSupport.firePropertyChange("robotPositionX",
-                m_robotPositionX, newX);
         m_robotPositionX = newX;
-        propertyChangeSupport.firePropertyChange("robotPositionY",
-                m_robotPositionY, newY);
         m_robotPositionY = newY;
         double newDirection = asNormalizedRadians(m_robotDirection + angularVelocity * duration);
-        propertyChangeSupport.firePropertyChange("robotDirection",
-                m_robotDirection, newDirection);
         m_robotDirection = newDirection;
+        propertyChangeSupport.firePropertyChange(ROBOT_MOVE, null, null);
     }
 }

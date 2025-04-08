@@ -9,12 +9,12 @@ import java.awt.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.Map;
+import java.util.Objects;
 
 public class RobotCoordinates extends JInternalFrame implements PropertyChangeListener, Stateful {
-    private Double x;
-    private Double y;
     private GameModel gameModel;
     private JLabel coordinatesLabel;
+    private JPanel panel = new JPanel(new BorderLayout());
 
     public RobotCoordinates(GameModel gameModel) {
         super("Координаты робота", true, true, true, true);
@@ -24,7 +24,6 @@ public class RobotCoordinates extends JInternalFrame implements PropertyChangeLi
         coordinatesLabel = new JLabel("", JLabel.CENTER);
         updateCoordinates(gameModel.getX(), gameModel.getY());
 
-        JPanel panel = new JPanel(new BorderLayout());
         panel.add(coordinatesLabel, BorderLayout.CENTER);
         getContentPane().add(panel);
 
@@ -33,15 +32,10 @@ public class RobotCoordinates extends JInternalFrame implements PropertyChangeLi
 
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
-        switch (evt.getPropertyName()) {
-            case "robotPositionX":
-                this.x = (Double)evt.getNewValue();
-                break;
-            case "robotPositionY":
-                this.y = (Double)evt.getNewValue();
-                break;
+        if(GameModel.ROBOT_MOVE.equals(evt.getPropertyName())) {
+            updateCoordinates(gameModel.getX(), gameModel.getY());
+            repaint();
         }
-        updateCoordinates(x, y);
     }
 
     private void updateCoordinates(Double coordinateX, Double coordinateY) {
