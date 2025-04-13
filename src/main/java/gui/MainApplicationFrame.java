@@ -222,7 +222,7 @@ public class MainApplicationFrame extends JFrame implements Stateful
 
     /**
      *  Создает пункт меню "Сообщение в лог".
-     *  Добавляет сообщение в лог
+     *  Добавляет сообщение "Новая строка" в лог
      */
     private JMenuItem addLogTestMenu()
     {
@@ -231,6 +231,20 @@ public class MainApplicationFrame extends JFrame implements Stateful
             Logger.debug("Новая строка");
         });
         return addLogMessageItem;
+    }
+
+    /**
+     *  Создает пункт меню "Другое сообщение в лог".
+     *  Добавляет сообщение "Старая строка" в лог
+     */
+    private JMenuItem addOldLogTestMenu()
+    {
+        JMenuItem addOldLogMessageItem = new JMenuItem(
+                "Другое сообщение в лог", KeyEvent.VK_L);
+        addOldLogMessageItem.addActionListener((event) -> {
+            Logger.debug("Старая строка");
+        });
+        return addOldLogMessageItem;
     }
 
     /**
@@ -243,6 +257,7 @@ public class MainApplicationFrame extends JFrame implements Stateful
         testMenu.getAccessibleContext().setAccessibleDescription(
                 "Тестовые команды");
         testMenu.add(addLogTestMenu());
+        testMenu.add(addOldLogTestMenu());
         return testMenu;
     }
 

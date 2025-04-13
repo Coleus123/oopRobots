@@ -1,5 +1,9 @@
 package game;
 
+import log.LogLevel;
+import log.LogWindowSource;
+import log.Logger;
+
 import java.awt.Color;
 import java.awt.EventQueue;
 import java.awt.Graphics;
@@ -17,9 +21,11 @@ import javax.swing.JPanel;
 public class GameVisualizer extends JPanel implements PropertyChangeListener
 {
     private GameModel gameModel;
+    private LogWindowSource logWindowSource;
     private GameController gameController;
     public GameVisualizer(GameModel gameModel, GameController gameController)
     {
+        this.logWindowSource = Logger.getDefaultLogSource();
         this.gameModel = gameModel;
         this.gameController = gameController;
         gameModel.addPropertyChangeListener(this);
@@ -29,6 +35,9 @@ public class GameVisualizer extends JPanel implements PropertyChangeListener
             public void mouseClicked(MouseEvent e)
             {
                 gameController.setTarget(e.getPoint());
+                logWindowSource.append(LogLevel.Debug,
+                        "X: " + gameModel.getTargetX() +
+                                ", Y: " + gameModel.getTargetY());
             }
         });
         setDoubleBuffered(true);
