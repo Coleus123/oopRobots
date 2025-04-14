@@ -11,6 +11,9 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * Проверяет правильность работы методов класса LogWindowSource
+ */
 class LogWindowSourceTest {
     private LogWindowSource logWindowSource;
 
@@ -19,7 +22,9 @@ class LogWindowSourceTest {
         logWindowSource = new LogWindowSource(3);
     }
 
-
+    /**
+     * Проверяет правильно ли добавляются элементы и возвращаются итерируемые объекты
+     */
     @Test
     void appendAndRangeAndAll() {
         logWindowSource.append(LogLevel.Debug, "a");
@@ -35,6 +40,9 @@ class LogWindowSourceTest {
         assertEquals("d", logList.get(2));
     }
 
+    /**
+     * Проверяет правильно ли возвращается количество сообщений в логе
+     */
     @Test
     void size() {
         assertEquals(0, logWindowSource.size());
