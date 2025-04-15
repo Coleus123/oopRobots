@@ -16,6 +16,10 @@ import java.util.stream.Stream;
  * величиной m_iQueueLength (т.е. реально нужна очередь сообщений 
  * ограниченного размера) 
  */
+
+/**
+ * Управляет и хранит сообщения лога
+ */
 public class LogWindowSource
 {
     private int m_iQueueLength = 5;
@@ -37,7 +41,10 @@ public class LogWindowSource
         indexMessagesTail = 0;
         freeSpaceForAdd = iQueueLength;
     }
-    
+
+    /**
+     * Добавляет слушателя
+     */
     public void registerListener(LogChangeListener listener)
     {
         synchronized(m_listeners)
@@ -46,7 +53,10 @@ public class LogWindowSource
             m_activeListeners = null;
         }
     }
-    
+
+    /**
+     * Удаляет слушателя
+     */
     public void unregisterListener(LogChangeListener listener)
     {
         synchronized(m_listeners)
@@ -57,7 +67,10 @@ public class LogWindowSource
             m_activeListeners = null;
         }
     }
-    
+
+    /**
+     * Добавляет сообщение
+     */
     public void append(LogLevel logLevel, String strMessage)
     {
         synchronized (m_messages) {
@@ -100,7 +113,9 @@ public class LogWindowSource
         }
     }
 
-    
+    /**
+     * Выдает количество сообщени
+     */
     public int size()
     {
         synchronized (m_messages) {
@@ -108,6 +123,9 @@ public class LogWindowSource
         }
     }
 
+    /**
+     * Возвращает итерируемы объект на список сообщени в указанном диапазоне
+     */
     public Iterable<LogEntry> range(int startFrom, int count)
     {
 
@@ -134,6 +152,9 @@ public class LogWindowSource
         }
     }
 
+    /**
+     * Возвращает итерируемы объект всех сообщени
+     */
     public Iterable<LogEntry> all()
     {
         synchronized (m_messages) {
