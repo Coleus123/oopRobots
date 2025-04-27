@@ -4,15 +4,21 @@ import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.util.Locale;
 import java.util.Map;
 
 import javax.swing.*;
 
+import LocaleManager.LocaleManager;
 import game.GameModel;
 import log.Logger;
 import windowsState.ComponentState;
 import windowsState.StateManager;
 import windowsState.Stateful;
+
+import static LocaleManager.LocaleManager.getString;
 
 /**
  * Что требуется сделать:
@@ -20,17 +26,19 @@ import windowsState.Stateful;
  * Следует разделить его на серию более простых методов (или вообще выделить отдельный класс).
  *
  */
-public class MainApplicationFrame extends JFrame implements Stateful
+public class MainApplicationFrame extends JFrame implements Stateful, PropertyChangeListener
 {
     private final JDesktopPane desktopPane = new JDesktopPane();
     private StateManager stateManager;
     private GameModel gameModel;
+    private LocaleManager localeManager = LocaleManager.getInstance();
 
 
     public MainApplicationFrame() {
         stateManager = new StateManager();
         gameModel = new GameModel();
-
+        localeManager.loadLocale();
+        localeManager.addPropertyChangeListener(this);
 
         setContentPane(desktopPane);
 
@@ -50,14 +58,18 @@ public class MainApplicationFrame extends JFrame implements Stateful
         addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
+                UIManager.put("OptionPane.yesButtonText", getString("button.yes"));
+                UIManager.put("OptionPane.noButtonText", getString("button.no"));
+
                 int choice = JOptionPane.showConfirmDialog(
                         e.getWindow(),
-                        "Вы точно хотите выйти?",
-                        "Подтверждение выхода",
+                        getString("exit.confirm"),
+                        getString("exit.title"),
                         JOptionPane.YES_NO_OPTION
                 );
                 if(choice == JOptionPane.YES_OPTION){
                     saveAllWindowsState(windows);
+                    localeManager.saveLocale();
                     dispose();
                     System.exit(0);
                 }
@@ -160,7 +172,8 @@ public class MainApplicationFrame extends JFrame implements Stateful
      * Создает пункт меню "Выход" для выхода из приложения
      */
     private JMenuItem createExit(){
-        JMenuItem exitItem = new JMenuItem("Выход", KeyEvent.VK_X | KeyEvent.VK_ALT);
+        JMenuItem exitItem = new JMenuItem(getString("menu.exit.text"),
+                KeyEvent.VK_X | KeyEvent.VK_ALT);
         exitItem.addActionListener((event) -> {
             Toolkit.getDefaultToolkit().getSystemEventQueue().postEvent(
                     new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
@@ -172,12 +185,52 @@ public class MainApplicationFrame extends JFrame implements Stateful
      * Меню позволяющее закрыть приложение
      */
     private JMenu generateExitMenu(){
-        JMenu exitMenu = new JMenu("Выход");
+        JMenu exitMenu = new JMenu(getString("menu.exit"));
         exitMenu.setMnemonic(KeyEvent.VK_E);
         exitMenu.getAccessibleContext().setAccessibleDescription(
-                "Позволяет выйти из приложения");
+                getString("menu.exit.description"));
         exitMenu.add(createExit());
         return exitMenu;
+    }
+
+    /**
+     * Создает меню "Язык"
+     * Позволяет выбрать язык интерфейса
+     */
+    private JMenu generateLanguageMenu(){
+        JMenu localeMenu = new JMenu(getString("menu.language"));
+        localeMenu.setMnemonic(KeyEvent.VK_H);
+        localeMenu.getAccessibleContext().setAccessibleDescription(
+                getString("menu.language.description"));
+        localeMenu.add(createLanguageRu());
+        localeMenu.add(createLanguageEn());
+        return localeMenu;
+    }
+
+    /**
+     * Создает подпункт для выбора русского языка
+     */
+    private JMenuItem createLanguageRu(){
+        JMenuItem localeRu = new JMenuItem("Русский");
+        localeRu.setMnemonic(KeyEvent.VK_L);
+        localeRu.addActionListener((event) -> {
+            localeManager.setLocale(new Locale("ru"));
+        });
+
+        return localeRu;
+    }
+
+    /**
+     * Создает подпункт для выбора английского языка
+     */
+    private JMenuItem createLanguageEn(){
+        JMenuItem localeEn = new JMenuItem("English");
+        localeEn.setMnemonic(KeyEvent.VK_D);
+        localeEn.addActionListener((event) -> {
+            localeManager.setLocale(Locale.ENGLISH);
+        });
+
+        return localeEn;
     }
 
     /**
@@ -185,7 +238,8 @@ public class MainApplicationFrame extends JFrame implements Stateful
      * Меняет вид интерфейса
      */
     private JMenuItem createSystemScheme(){
-        JMenuItem systemLookAndFeel = new JMenuItem("Системная схема", KeyEvent.VK_S);
+        JMenuItem systemLookAndFeel = new JMenuItem(getString("menu.look.system")
+                , KeyEvent.VK_S);
         systemLookAndFeel.addActionListener((event) -> {
             setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
             this.invalidate();
@@ -199,7 +253,8 @@ public class MainApplicationFrame extends JFrame implements Stateful
      */
     private JMenuItem createCrossplatformScheme()
     {
-        JMenuItem crossplatformLookAndFeel = new JMenuItem("Универсальная схема", KeyEvent.VK_S);
+        JMenuItem crossplatformLookAndFeel = new JMenuItem(getString("menu.look.crossplatform"),
+                KeyEvent.VK_S);
         crossplatformLookAndFeel.addActionListener((event) -> {
             setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
             this.invalidate();
@@ -211,10 +266,10 @@ public class MainApplicationFrame extends JFrame implements Stateful
      * Содержит пункты для изменения вида интерфейса
      */
     private JMenu generateLookAndFeelMenu(){
-        JMenu lookAndFeelMenu = new JMenu("Режим отображения");
+        JMenu lookAndFeelMenu = new JMenu(getString("menu.look"));
         lookAndFeelMenu.setMnemonic(KeyEvent.VK_V);
         lookAndFeelMenu.getAccessibleContext().setAccessibleDescription(
-                "Управление режимом отображения приложения");
+                getString("menu.look.description"));
         lookAndFeelMenu.add(createSystemScheme());
         lookAndFeelMenu.add(createCrossplatformScheme());
         return lookAndFeelMenu;
@@ -226,9 +281,9 @@ public class MainApplicationFrame extends JFrame implements Stateful
      */
     private JMenuItem addLogTestMenu()
     {
-        JMenuItem addLogMessageItem = new JMenuItem("Сообщение в лог", KeyEvent.VK_S);
+        JMenuItem addLogMessageItem = new JMenuItem(getString("menu.test.log"), KeyEvent.VK_S);
         addLogMessageItem.addActionListener((event) -> {
-            Logger.debug("Новая строка");
+            Logger.debug(getString("log.new"));
         });
         return addLogMessageItem;
     }
@@ -240,9 +295,9 @@ public class MainApplicationFrame extends JFrame implements Stateful
     private JMenuItem addOldLogTestMenu()
     {
         JMenuItem addOldLogMessageItem = new JMenuItem(
-                "Другое сообщение в лог", KeyEvent.VK_L);
+                getString("menu.test.oldlog"), KeyEvent.VK_L);
         addOldLogMessageItem.addActionListener((event) -> {
-            Logger.debug("Старая строка");
+            Logger.debug(getString("log.old"));
         });
         return addOldLogMessageItem;
     }
@@ -252,10 +307,10 @@ public class MainApplicationFrame extends JFrame implements Stateful
      */
     private JMenu generateTestMenu()
     {
-        JMenu testMenu = new JMenu("Тесты");
+        JMenu testMenu = new JMenu(getString("menu.test"));
         testMenu.setMnemonic(KeyEvent.VK_T);
         testMenu.getAccessibleContext().setAccessibleDescription(
-                "Тестовые команды");
+                getString("menu.test.description"));
         testMenu.add(addLogTestMenu());
         testMenu.add(addOldLogTestMenu());
         return testMenu;
@@ -268,6 +323,7 @@ public class MainApplicationFrame extends JFrame implements Stateful
         menuBar.add(generateExitMenu());
         menuBar.add(generateLookAndFeelMenu());
         menuBar.add(generateTestMenu());
+        menuBar.add(generateLanguageMenu());
         return menuBar;
     }
     
@@ -282,6 +338,13 @@ public class MainApplicationFrame extends JFrame implements Stateful
             | IllegalAccessException | UnsupportedLookAndFeelException e)
         {
             // just ignore
+        }
+    }
+
+    @Override
+    public void propertyChange(PropertyChangeEvent evt) {
+        if (LocaleManager.LOCALE_CHANGED.equals(evt.getPropertyName())) {
+            setJMenuBar(generateMenuBar());
         }
     }
 }

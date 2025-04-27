@@ -3,6 +3,8 @@ package gui;
 import java.awt.BorderLayout;
 import java.awt.EventQueue;
 import java.awt.TextArea;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.beans.PropertyVetoException;
 import java.util.HashMap;
 import java.util.Map;
@@ -10,6 +12,7 @@ import java.util.Map;
 import javax.swing.JInternalFrame;
 import javax.swing.JPanel;
 
+import LocaleManager.LocaleManager;
 import log.LogChangeListener;
 import log.LogEntry;
 import log.LogWindowSource;
@@ -17,7 +20,9 @@ import log.Logger;
 import windowsState.ComponentState;
 import windowsState.Stateful;
 
-public class LogWindow extends JInternalFrame implements LogChangeListener, Stateful
+import static LocaleManager.LocaleManager.getString;
+
+public class LogWindow extends JInternalFrame implements LogChangeListener, Stateful, PropertyChangeListener
 {
     private LogWindowSource m_logSource;
     private TextArea m_logContent;
@@ -29,7 +34,7 @@ public class LogWindow extends JInternalFrame implements LogChangeListener, Stat
 
     public LogWindow()
     {
-        super("Протокол работы", true, true, true, true);
+        super(getString("logwindow.name"), true, true, true, true);
         m_logSource = Logger.getDefaultLogSource();
         m_logSource.registerListener(this);
         m_logContent = new TextArea("");
@@ -40,7 +45,8 @@ public class LogWindow extends JInternalFrame implements LogChangeListener, Stat
         getContentPane().add(panel);
         pack();
         updateLogContent();
-        Logger.debug("Протокол работает");
+        Logger.debug(getString("logwindow.message"));
+        LocaleManager.getInstance().addPropertyChangeListener(this);
     }
 
     private void updateLogContent()
@@ -77,5 +83,12 @@ public class LogWindow extends JInternalFrame implements LogChangeListener, Stat
     @Override
     public String getName(){
         return "Log";
+    }
+
+    @Override
+    public void propertyChange(PropertyChangeEvent evt) {
+        if(LocaleManager.LOCALE_CHANGED.equals(evt.getPropertyName())){
+            setTitle(getString("logwindow.name"));
+        }
     }
 }

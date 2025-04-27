@@ -1,5 +1,6 @@
 package gui;
 
+import LocaleManager.LocaleManager;
 import game.GameModel;
 import windowsState.ComponentState;
 import windowsState.Stateful;
@@ -11,13 +12,15 @@ import java.beans.PropertyChangeListener;
 import java.util.Map;
 import java.util.Objects;
 
+import static LocaleManager.LocaleManager.getString;
+
 public class RobotCoordinates extends JInternalFrame implements PropertyChangeListener, Stateful {
     private GameModel gameModel;
     private JLabel coordinatesLabel;
 
 
     public RobotCoordinates(GameModel gameModel) {
-        super("Координаты робота", true, true, true, true);
+        super(getString("robotcoordinations.name"), true, true, true, true);
         this.gameModel = gameModel;
         gameModel.addPropertyChangeListener(this);
         JPanel panel = new JPanel(new BorderLayout());
@@ -28,6 +31,7 @@ public class RobotCoordinates extends JInternalFrame implements PropertyChangeLi
         getContentPane().add(panel);
 
         setSize(300, 150);
+        LocaleManager.getInstance().addPropertyChangeListener(this);
     }
 
     @Override
@@ -35,6 +39,9 @@ public class RobotCoordinates extends JInternalFrame implements PropertyChangeLi
         if(GameModel.ROBOT_MOVE.equals(evt.getPropertyName())) {
             updateCoordinates(gameModel.getX(), gameModel.getY());
             repaint();
+        }
+        if(LocaleManager.LOCALE_CHANGED.equals(evt.getPropertyName())){
+            setTitle(getString("robotcoordinations.name"));
         }
     }
 
