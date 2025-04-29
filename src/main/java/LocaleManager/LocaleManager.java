@@ -38,7 +38,7 @@ public class LocaleManager {
     /**
      * Возвращает строку на нужном языке
      */
-    public static String getString(String key){
+    public static synchronized String getString(String key){
         return data.getString(key);
     }
 
