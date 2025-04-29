@@ -26,11 +26,13 @@ public class LocaleManager {
     /**
      * Возвращает единственный экземпляр управления локалью
      */
-    public static synchronized LocaleManager getInstance(){
-        if (instance == null){
-            instance = new LocaleManager();
+    public static LocaleManager getInstance(){
+        synchronized(LocaleManager.class){
+            if (instance == null){
+                instance = new LocaleManager();
+            }
+            return instance;
         }
-        return instance;
     }
 
     /**
@@ -43,7 +45,7 @@ public class LocaleManager {
     /**
      * Позволяет поменять локаль
      */
-    public void setLocale(Locale locale){
+    public synchronized void setLocale(Locale locale){
         String old_locale = locale.getLanguage();
         currentLocale = locale;
         data = ResourceBundle.getBundle("text", currentLocale);
@@ -53,7 +55,7 @@ public class LocaleManager {
     /**
      * Сохраняет локаль
      */
-    public void saveLocale(){
+    public synchronized void saveLocale(){
         try {
             Files.createDirectories(localePath.getParent());
             Files.writeString(localePath, currentLocale.getLanguage());
@@ -65,7 +67,7 @@ public class LocaleManager {
     /**
      * Загружает локаль из файла, если файла нет, то по умолчанию русский язык
      */
-    public void loadLocale(){
+    public synchronized void loadLocale(){
         if (!Files.exists(localePath)) {
             return;
         }
@@ -84,6 +86,9 @@ public class LocaleManager {
         }
     }
 
+    /**
+     * Добавляет слушателя
+     */
     public void addPropertyChangeListener(PropertyChangeListener listener) {
         propertyChangeSupport.addPropertyChangeListener(listener);
     }
